@@ -11,14 +11,14 @@
     tools:context="com.haidangkf.nicechat.UserActivity">
 
     <TextView
-        android:id="@+id/noUsersText"
+        android:id="@+id/tvInform"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No users found!"
+        android:text="No user was found!"
         android:visibility="gone" />
 
     <ListView
-        android:id="@+id/usersList"
+        android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

@@ -24,37 +24,38 @@ import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
     LinearLayout layout;
-    ImageView sendButton;
-    EditText messageArea;
+    EditText etMessage;
+    ImageView btnSend;
     ScrollView scrollView;
     Firebase reference1, reference2;
+    String url = "https://android-chat-app-e711d.firebaseio.com/messages/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        layout = (LinearLayout) findViewById(R.id.layout1);
-        sendButton = (ImageView) findViewById(R.id.sendButton);
-        messageArea = (EditText) findViewById(R.id.messageArea);
+        layout = (LinearLayout) findViewById(R.id.linearLayout);
+        btnSend = (ImageView) findViewById(R.id.btnSend);
+        etMessage = (EditText) findViewById(R.id.etMessage);
         scrollView = (ScrollView) findViewById(R.id.scrollView);
 
         Firebase.setAndroidContext(this);
-        reference1 = new Firebase("https://android-chat-app-e711d.firebaseio.com/messages/" + UserDetails.username + "_" + UserDetails.chatWith);
-        reference2 = new Firebase("https://android-chat-app-e711d.firebaseio.com/messages/" + UserDetails.chatWith + "_" + UserDetails.username);
+        reference1 = new Firebase(url + UserDetail.username + "_" + UserDetail.chatWith);
+        reference2 = new Firebase(url + UserDetail.chatWith + "_" + UserDetail.username);
 
-        sendButton.setOnClickListener(new View.OnClickListener() {
+        btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String messageText = messageArea.getText().toString();
+                String messageText = etMessage.getText().toString();
 
                 if (!messageText.isEmpty()) {
-                    Map<String, String> map = new HashMap<String, String>();
+                    Map<String, String> map = new HashMap<>();
                     map.put("message", messageText);
-                    map.put("user", UserDetails.username);
+                    map.put("user", UserDetail.username);
                     reference1.push().setValue(map);
                     reference2.push().setValue(map);
-                    messageArea.setText("");
+                    etMessage.setText("");
                 }
             }
         });
@@ -66,10 +67,10 @@ public class ChatActivity extends AppCompatActivity {
                 String message = map.get("message").toString();
                 String userName = map.get("user").toString();
 
-                if (userName.equals(UserDetails.username)) {
-                    addMessageBox("You:-\n" + message, 1);
+                if (userName.equals(UserDetail.username)) {
+                    addMessageBox("You:\n" + message, 1);
                 } else {
-                    addMessageBox(UserDetails.chatWith + ":-\n" + message, 2);
+                    addMessageBox(UserDetail.chatWith + ":\n" + message, 2);
                 }
             }
 
@@ -102,9 +103,9 @@ public class ChatActivity extends AppCompatActivity {
         lp.setMargins(0, 0, 0, 10);
         textView.setLayoutParams(lp);
 
-        if (type == 1) {
+        if (type == 1) { // my message
             textView.setBackgroundResource(R.drawable.rounded_corner1);
-        } else {
+        } else { // partner's message
             textView.setBackgroundResource(R.drawable.rounded_corner2);
         }
 

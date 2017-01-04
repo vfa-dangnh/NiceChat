@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,25 +27,26 @@ import org.json.JSONObject;
  */
 
 public class RegisterActivity extends AppCompatActivity {
-    EditText username, password, confirmPassword;
-    Button registerButton;
-    String user, pass, confirmPass;
-    TextView login;
+    public static final String TAG = "";
+    EditText etUsername, etPassword, etConfirmPassword;
+    Button btnRegister;
+    TextView btnLogIn;
+    String username, password, confirmPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        username = (EditText) findViewById(R.id.username);
-        password = (EditText) findViewById(R.id.password);
-        confirmPassword = (EditText) findViewById(R.id.confirmPassword);
-        registerButton = (Button) findViewById(R.id.registerButton);
-        login = (TextView) findViewById(R.id.login);
+        etUsername = (EditText) findViewById(R.id.etUsername);
+        etPassword = (EditText) findViewById(R.id.etPassword);
+        etConfirmPassword = (EditText) findViewById(R.id.etConfirmPassword);
+        btnRegister = (Button) findViewById(R.id.btnRegister);
+        btnLogIn = (TextView) findViewById(R.id.btnLogIn);
 
         Firebase.setAndroidContext(this);
 
-        login.setOnClickListener(new View.OnClickListener() {
+        btnLogIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
@@ -52,27 +54,23 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        registerButton.setOnClickListener(new View.OnClickListener() {
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                user = username.getText().toString();
-                pass = password.getText().toString();
-                confirmPass = confirmPassword.getText().toString();
+                username = etUsername.getText().toString();
+                password = etPassword.getText().toString();
+                confirmPassword = etConfirmPassword.getText().toString();
 
-                if (user.equals("")) {
-                    username.setError("can't be blank");
-                } else if (pass.equals("")) {
-                    password.setError("can't be blank");
-                } else if (confirmPass.equals("")) {
-                    confirmPassword.setError("can't be blank");
-                } else if (!pass.equals(confirmPass)) {
-                    Toast.makeText(RegisterActivity.this, "Password does not match !", Toast.LENGTH_SHORT).show();
-                } else if (!user.matches("[A-Za-z0-9]+")) {
-                    username.setError("only alphabet or number allowed");
-                } else if (user.length() < 5) {
-                    username.setError("at least 5 characters long");
-                } else if (pass.length() < 5) {
-                    password.setError("at least 5 characters long");
+                if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                    Toast.makeText(RegisterActivity.this, "Please fill all the blanks", Toast.LENGTH_SHORT).show();
+                } else if (!password.equals(confirmPassword)) {
+                    Toast.makeText(RegisterActivity.this, "Password does not match", Toast.LENGTH_SHORT).show();
+                } else if (!username.matches("[A-Za-z0-9]+")) {
+                    etUsername.setError("Only alphabet or number allowed");
+                } else if (username.length() < 5) {
+                    etUsername.setError("At least 5 characters");
+                } else if (password.length() < 5) {
+                    etPassword.setError("At least 5 characters");
                 } else {
                     final ProgressDialog pd = new ProgressDialog(RegisterActivity.this);
                     pd.setMessage("Loading...");
@@ -86,17 +84,25 @@ public class RegisterActivity extends AppCompatActivity {
                             Firebase reference = new Firebase("https://android-chat-app-e711d.firebaseio.com/users");
 
                             if (s.equals("null")) {
-                                reference.child(user).child("password").setValue(pass);
-                                Toast.makeText(RegisterActivity.this, "registration successful", Toast.LENGTH_LONG).show();
+                                reference.child(username).child("password").setValue(password);
+                                Toast.makeText(RegisterActivity.this, "Register successful", Toast.LENGTH_LONG).show();
+
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
                             } else {
                                 try {
                                     JSONObject obj = new JSONObject(s);
 
-                                    if (!obj.has(user)) {
-                                        reference.child(user).child("password").setValue(pass);
-                                        Toast.makeText(RegisterActivity.this, "registration successful", Toast.LENGTH_LONG).show();
+                                    if (!obj.has(username)) {
+                                        reference.child(username).child("password").setValue(password);
+                                        Toast.makeText(RegisterActivity.this, "Register successful", Toast.LENGTH_LONG).show();
+
+                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(intent);
                                     } else {
-                                        Toast.makeText(RegisterActivity.this, "username already exists", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(RegisterActivity.this, "Username already exists", Toast.LENGTH_SHORT).show();
                                     }
 
                                 } catch (JSONException e) {
@@ -110,7 +116,7 @@ public class RegisterActivity extends AppCompatActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            System.out.println("" + volleyError);
+                            Log.d(TAG, volleyError.toString());
                             pd.dismiss();
                         }
                     });

@@ -4,20 +4,21 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import org.json.JSONObject;
 
 /**
@@ -25,22 +26,25 @@ import org.json.JSONObject;
  */
 
 public class MainActivity extends AppCompatActivity {
-    TextView register;
-    EditText username, password;
-    Button loginButton;
-    String user, pass;
+
+    public static final String TAG = "my_log";
+    EditText etUsername, etPassword;
+    Button btnLogIn;
+    TextView btnRegister;
+    String username, password;
+    String url = "https://android-chat-app-e711d.firebaseio.com/users.json";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        register = (TextView) findViewById(R.id.register);
-        username = (EditText) findViewById(R.id.username);
-        password = (EditText) findViewById(R.id.password);
-        loginButton = (Button) findViewById(R.id.loginButton);
+        btnRegister = (TextView) findViewById(R.id.btnRegister);
+        etUsername = (EditText) findViewById(R.id.etUsername);
+        etPassword = (EditText) findViewById(R.id.etPassword);
+        btnLogIn = (Button) findViewById(R.id.btnLogIn);
 
-        register.setOnClickListener(new View.OnClickListener() {
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this, RegisterActivity.class));
@@ -48,18 +52,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        btnLogIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                user = username.getText().toString();
-                pass = password.getText().toString();
+                username = etUsername.getText().toString();
+                password = etPassword.getText().toString();
 
-                if (user.equals("")) {
-                    username.setError("can't be blank");
-                } else if (pass.equals("")) {
-                    password.setError("can't be blank");
-                } else {
-                    String url = "https://android-chat-app-e711d.firebaseio.com/users.json";
+                if (username.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Please fill in username and password", Toast.LENGTH_SHORT).show();
+                }  else {
                     final ProgressDialog pd = new ProgressDialog(MainActivity.this);
                     pd.setMessage("Loading...");
                     pd.show();
@@ -68,19 +69,23 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(String s) {
                             if (s.equals("null")) {
-                                Toast.makeText(MainActivity.this, "user not found", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, "User not found", Toast.LENGTH_SHORT).show();
                             } else {
                                 try {
                                     JSONObject obj = new JSONObject(s);
 
-                                    if (!obj.has(user)) {
-                                        Toast.makeText(MainActivity.this, "user not found", Toast.LENGTH_LONG).show();
-                                    } else if (obj.getJSONObject(user).getString("password").equals(pass)) {
-                                        UserDetails.username = user;
-                                        UserDetails.password = pass;
-                                        startActivity(new Intent(MainActivity.this, UserActivity.class));
+                                    if (!obj.has(username)) {
+                                        Toast.makeText(MainActivity.this, "User not found", Toast.LENGTH_SHORT).show();
+                                    } else if (obj.getJSONObject(username).getString("password").equals(password)) {
+                                        // save username and password
+                                        UserDetail.username = username;
+                                        UserDetail.password = password;
+
+                                        Intent intent = new Intent(getApplicationContext(), UserActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(intent);
                                     } else {
-                                        Toast.makeText(MainActivity.this, "incorrect password", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(MainActivity.this, "Wrong password", Toast.LENGTH_SHORT).show();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -92,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
-                            System.out.println("" + volleyError);
+                            Log.d(TAG, volleyError.toString());
                             pd.dismiss();
                         }
                     });

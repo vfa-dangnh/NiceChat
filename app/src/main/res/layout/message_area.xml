@@ -7,7 +7,7 @@
     android:orientation="horizontal">
 
     <EditText
-        android:id="@+id/messageArea"
+        android:id="@+id/etMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -18,7 +18,7 @@
         android:textColorHint="@android:color/darker_gray" />
 
     <ImageView
-        android:id="@+id/sendButton"
+        android:id="@+id/btnSend"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="3dp"
