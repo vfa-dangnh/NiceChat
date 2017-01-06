@@ -17,6 +17,26 @@
         android:text="No user was found!"
         android:visibility="gone" />
 
+    <TableRow
+        android:id="@+id/rowSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:background="@android:drawable/ic_menu_search" />
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="bottom"
+            android:hint="Enter name to search" />
+    </TableRow>
+
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"

@@ -1,9 +1,11 @@
 package com.haidangkf.nicechat;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -96,17 +98,25 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    }
+
     public void addMessageBox(String message, int type) {
         TextView textView = new TextView(ChatActivity.this);
         textView.setText(message);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.setMargins(0, 0, 0, 10);
         textView.setLayoutParams(lp);
 
         if (type == 1) { // my message
             textView.setBackgroundResource(R.drawable.rounded_corner1);
+            textView.setTextColor(Color.BLUE);
         } else { // partner's message
             textView.setBackgroundResource(R.drawable.rounded_corner2);
+            textView.setTextColor(Color.DKGRAY);
         }
 
         layout.addView(textView);
